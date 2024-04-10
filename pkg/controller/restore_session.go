@@ -130,9 +130,6 @@ func (c *StashController) NewRestoreSessionMutator() hooks.AdmissionHook {
 func (c *StashController) initRestoreSessionWatcher() {
 	c.restoreSessionInformer = c.stashInformerFactory.Stash().V1beta1().RestoreSessions().Informer()
 	c.restoreSessionQueue = queue.New(api_v1beta1.ResourceKindRestoreSession, c.MaxNumRequeues, c.NumThreads, c.processRestoreSessionEvent)
-	if c.auditor != nil {
-		c.auditor.ForGVK(c.restoreSessionInformer, api_v1beta1.SchemeGroupVersion.WithKind(api_v1beta1.ResourceKindRestoreSession))
-	}
 	_, _ = c.restoreSessionInformer.AddEventHandler(queue.DefaultEventHandler(c.restoreSessionQueue.GetQueue(), core.NamespaceAll))
 	c.restoreSessionLister = c.stashInformerFactory.Stash().V1beta1().RestoreSessions().Lister()
 }
@@ -676,16 +673,15 @@ func (c *StashController) newInitContainerExecutor(inv invoker.RestoreInvoker, w
 	}
 
 	e := &executor.InitContainer{
-		KubeClient:        c.kubeClient,
-		OpenshiftClient:   c.ocClient,
-		StashClient:       c.stashClient,
-		RBACOptions:       rbacOptions,
-		Invoker:           inv,
-		Index:             index,
-		Image:             c.getDockerImage(),
-		LicenseApiService: c.LicenseApiService,
-		Caller:            caller,
-		Workload:          w,
+		KubeClient:      c.kubeClient,
+		OpenshiftClient: c.ocClient,
+		StashClient:     c.stashClient,
+		RBACOptions:     rbacOptions,
+		Invoker:         inv,
+		Index:           index,
+		Image:           c.getDockerImage(),
+		Caller:          caller,
+		Workload:        w,
 	}
 
 	e.Repository, err = c.repoLister.Repositories(inv.GetRepoRef().Namespace).Get(inv.GetRepoRef().Name)
@@ -737,14 +733,13 @@ func (c *StashController) newRestoreJobExecutor(inv invoker.RestoreInvoker, inde
 	}
 
 	e := &executor.RestoreJob{
-		KubeClient:        c.kubeClient,
-		StashClient:       c.stashClient,
-		CatalogClient:     c.appCatalogClient,
-		RBACOptions:       rbacOptions,
-		Invoker:           inv,
-		Index:             index,
-		Image:             c.getDockerImage(),
-		LicenseApiService: c.LicenseApiService,
+		KubeClient:    c.kubeClient,
+		StashClient:   c.stashClient,
+		CatalogClient: c.appCatalogClient,
+		RBACOptions:   rbacOptions,
+		Invoker:       inv,
+		Index:         index,
+		Image:         c.getDockerImage(),
 	}
 
 	e.Repository, err = c.repoLister.Repositories(inv.GetRepoRef().Namespace).Get(inv.GetRepoRef().Name)

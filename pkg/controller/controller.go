@@ -25,7 +25,6 @@ import (
 	stash_listers_v1beta1 "stash.appscode.dev/apimachinery/client/listers/stash/v1beta1"
 	"stash.appscode.dev/apimachinery/pkg/docker"
 
-	auditlib "go.bytebuilders.dev/audit/lib"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/informers"
@@ -56,7 +55,6 @@ type StashController struct {
 	appCatalogClient appcatalog_cs.Interface
 	recorder         record.EventRecorder
 	mapper           discovery.ResourceMapper
-	auditor          *auditlib.EventPublisher
 
 	kubeInformerFactory  informers.SharedInformerFactory
 	ocInformerFactory    oc_informers.SharedInformerFactory

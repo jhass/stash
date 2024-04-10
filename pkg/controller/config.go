@@ -17,7 +17,6 @@ limitations under the License.
 package controller
 
 import (
-	"fmt"
 	"time"
 
 	cs "stash.appscode.dev/apimachinery/client/clientset/versioned"
@@ -26,16 +25,12 @@ import (
 	"stash.appscode.dev/stash/pkg/eventer"
 	"stash.appscode.dev/stash/pkg/util"
 
-	auditlib "go.bytebuilders.dev/audit/lib"
-	proxyserver "go.bytebuilders.dev/license-proxyserver/apis/proxyserver/v1alpha1"
-	licenseapi "go.bytebuilders.dev/license-verifier/apis/licenses/v1alpha1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	reg_util "kmodules.xyz/client-go/admissionregistration/v1"
 	"kmodules.xyz/client-go/discovery"
-	"kmodules.xyz/client-go/tools/clusterid"
 	appcatalog_cs "kmodules.xyz/custom-resources/client/clientset/versioned"
 	oc_cs "kmodules.xyz/openshift/client/clientset/versioned"
 	oc_informers "kmodules.xyz/openshift/client/informers/externalversions"
@@ -47,9 +42,6 @@ const (
 )
 
 type config struct {
-	LicenseFile             string
-	License                 licenseapi.License
-	LicenseApiService       string
 	StashImage              string
 	StashImageTag           string
 	DockerRegistry          string
@@ -81,18 +73,6 @@ func NewConfig(clientConfig *rest.Config) *Config {
 	}
 }
 
-func (c Config) LicenseProvided() bool {
-	if c.LicenseFile != "" {
-		return true
-	}
-
-	ok, _ := discovery.HasGVK(
-		c.KubeClient.Discovery(),
-		proxyserver.SchemeGroupVersion.String(),
-		proxyserver.ResourceKindLicenseRequest)
-	return ok
-}
-
 func (c *Config) New() (*StashController, error) {
 	if err := discovery.IsDefaultSupportedVersion(c.KubeClient); err != nil {
 		return nil, err
@@ -104,27 +84,6 @@ func (c *Config) New() (*StashController, error) {
 	}
 
 	informerFactory := informers.NewSharedInformerFactoryWithOptions(c.KubeClient, c.ResyncPeriod)
-
-	// audit event publisher
-	// WARNING: https://stackoverflow.com/a/46275411/244009
-	var auditor *auditlib.EventPublisher
-	if c.LicenseProvided() && !c.License.DisableAnalytics() {
-		cmeta, err := clusterid.ClusterMetadata(c.KubeClient.CoreV1().Namespaces())
-		if err != nil {
-			return nil, fmt.Errorf("failed to extract cluster metadata, reason: %v", err)
-		}
-		fn := auditlib.BillingEventCreator{
-			Mapper:          mapper,
-			ClusterMetadata: cmeta,
-		}
-		auditor = auditlib.NewResilientEventPublisher(func() (*auditlib.NatsConfig, error) {
-			return auditlib.NewNatsConfig(c.ClientConfig, cmeta.UID, c.LicenseFile)
-		}, mapper, fn.CreateEvent)
-		err = auditor.SetupSiteInfoPublisher(c.ClientConfig, c.KubeClient, informerFactory)
-		if err != nil {
-			return nil, fmt.Errorf("failed to setup site info publisher, reason: %v", err)
-		}
-	}
 
 	ctrl := &StashController{
 		config:               c.config,
@@ -139,7 +98,6 @@ func (c *Config) New() (*StashController, error) {
 		ocInformerFactory:    oc_informers.NewSharedInformerFactory(c.OcClient, c.ResyncPeriod),
 		recorder:             eventer.NewEventRecorder(c.KubeClient, "stash-operator"),
 		mapper:               mapper,
-		auditor:              auditor,
 	}
 
 	// ensure default functions

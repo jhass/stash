@@ -29,7 +29,6 @@ import (
 	"stash.appscode.dev/stash/pkg/eventer"
 	snapregistry "stash.appscode.dev/stash/pkg/registry/snapshot"
 
-	license "go.bytebuilders.dev/license-verifier/kubernetes"
 	admission "k8s.io/api/admission/v1beta1"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -132,9 +131,6 @@ func (c completedConfig) New() (*StashServer, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// Add license handler
-	license.MustLicenseEnforcer(c.ExtraConfig.ClientConfig, c.ExtraConfig.LicenseFile).Install(genericServer.Handler.NonGoRestfulMux)
 
 	var admissionHooks []hooks.AdmissionHook
 	if c.ExtraConfig.EnableValidatingWebhook {

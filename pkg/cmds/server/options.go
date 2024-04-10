@@ -28,11 +28,7 @@ import (
 	"stash.appscode.dev/stash/pkg/controller"
 
 	"github.com/spf13/pflag"
-	licenseapi "go.bytebuilders.dev/license-verifier/apis/licenses/v1alpha1"
-	"go.bytebuilders.dev/license-verifier/info"
-	license "go.bytebuilders.dev/license-verifier/kubernetes"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/discovery"
 	appcatalog_cs "kmodules.xyz/custom-resources/client/clientset/versioned"
@@ -41,8 +37,6 @@ import (
 )
 
 type ExtraOptions struct {
-	LicenseFile             string
-	LicenseApiService       string
 	StashImage              string
 	StashImageTag           string
 	DockerRegistry          string
@@ -81,8 +75,6 @@ func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&s.StashImageTag, "image-tag", s.StashImageTag, "Image tag for sidecar, init-container, check-job and recovery-job")
 	fs.StringVar(&s.DockerRegistry, "docker-registry", s.DockerRegistry, "Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job")
 	fs.StringSliceVar(&s.ImagePullSecrets, "image-pull-secrets", s.ImagePullSecrets, "List of image pull secrets for pulling image from private registries")
-	fs.StringVar(&s.LicenseFile, "license-file", s.LicenseFile, "Path to license file")
-	fs.StringVar(&s.LicenseApiService, "license-apiservice", s.LicenseApiService, "Name of the ApiService to use by the addons to identify the respective service and certificate for license verification request")
 
 	fs.Float64Var(&s.QPS, "qps", s.QPS, "The maximum QPS to the master from this client")
 	fs.IntVar(&s.Burst, "burst", s.Burst, "The maximum burst for throttle")
@@ -101,8 +93,6 @@ func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {
 func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 	var err error
 
-	cfg.LicenseFile = s.LicenseFile
-	cfg.LicenseApiService = s.LicenseApiService
 	cfg.StashImage = s.StashImage
 	cfg.StashImageTag = s.StashImageTag
 	cfg.DockerRegistry = s.DockerRegistry
@@ -137,17 +127,6 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		if cfg.OcClient, err = oc_cs.NewForConfig(cfg.ClientConfig); err != nil {
 			return err
 		}
-	}
-
-	if cfg.LicenseProvided() {
-		l := license.MustLicenseEnforcer(cfg.ClientConfig, cfg.LicenseFile).LoadLicense()
-		if l.Status != licenseapi.LicenseActive {
-			return fmt.Errorf("license status %s, reason: %s", l.Status, l.Reason)
-		}
-		if !sets.NewString(l.Features...).HasAny(info.Features()...) {
-			return fmt.Errorf("not a valid license for this product")
-		}
-		cfg.License = l
 	}
 
 	metrics.SetPushgatewayURL(s.PushgatewayURL)

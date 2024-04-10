@@ -862,14 +862,6 @@ github.com/zeebo/assert v1.3.0/go.mod h1:Pq9JiuJQpG8JLJdtkwrJESF0Foym2/D9XMU5ciN
 github.com/zeebo/xxh3 v1.0.2 h1:xZmwmqxHZA8AI603jOQ0tMqmBr9lPeFwGg6d+xy9DC0=
 github.com/zeebo/xxh3 v1.0.2/go.mod h1:5NWz9Sef7zIDm2JHfFlcQvNekmcEl9ekUZQQKCYaDcA=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
-go.bytebuilders.dev/audit v0.0.33 h1:p9cPJpRimV6asHh55RSr1IB6NhSZABvLPo0Md6QB4Nc=
-go.bytebuilders.dev/audit v0.0.33/go.mod h1:RjYq4EVdUGLfzSnnm0CtS0kjBgW3zDIDrTQr0YN6SRA=
-go.bytebuilders.dev/license-proxyserver v0.0.9 h1:MFArxunIZS0o3LZ+JuSwub8GwZ4bdE3kkfJ8hJfkREQ=
-go.bytebuilders.dev/license-proxyserver v0.0.9/go.mod h1:mLX/7EK1gouPWXmG3qibRXF8y+dkR3H1Hgttioy6Dww=
-go.bytebuilders.dev/license-verifier v0.14.0 h1:O6pXhz9vz7dPWIJATkX+JiMLhUD2ydzvKzf26c+3Jrw=
-go.bytebuilders.dev/license-verifier v0.14.0/go.mod h1:GB9XTSQUcllJ4AVq29TdJI6yRjoI86HGz0XMqq9nLwY=
-go.bytebuilders.dev/license-verifier/kubernetes v0.14.0 h1:eeOKHu1YgdHhsaCXf9GNo1ha3SOfaSSe40xG1gc+ArA=
-go.bytebuilders.dev/license-verifier/kubernetes v0.14.0/go.mod h1:ms4GTV6vb5eg+dglr8N6EaOybGE77s+kkppFUZ3aZZQ=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.8 h1:xs88BrvEv273UsB79e0hcVrlUWmS0a8upikMFhSyAtA=
 go.etcd.io/bbolt v1.3.8/go.mod h1:N9Mkw9X8x5fupy0IKsmuqVtoGDyxsaDlbk4Rd05IAQw=

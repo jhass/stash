@@ -23,7 +23,6 @@ import (
 	_ "stash.appscode.dev/apimachinery/client/clientset/versioned/fake"
 	"stash.appscode.dev/stash/pkg/cmds"
 
-	_ "go.bytebuilders.dev/license-verifier/info"
 	"gomodules.xyz/logs"
 	_ "k8s.io/client-go/kubernetes/fake"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
